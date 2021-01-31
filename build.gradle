@@ -1,0 +1,120 @@
+plugins {
+  id 'maven'
+  id 'signing'
+  id 'maven-publish'
+  id 'java-library'
+  id 'eclipse'
+  id 'java'
+}
+
+apply plugin: 'maven'
+apply plugin: 'eclipse'
+apply plugin: 'java'
+
+task javadocJar(type: Jar) {
+  classifier = 'javadoc'
+  from javadoc
+}
+
+task sourcesJar(type: Jar) {
+  classifier = 'sources'
+  from sourceSets.main.allSource
+}
+
+artifacts {
+  archives javadocJar, sourcesJar
+}
+
+signing {
+  sign configurations.archives
+}
+
+java {
+  withSourcesJar()
+}
+
+jar {
+  baseName = 'standardauth'
+  version = '1.1.1'
+  enabled = true
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: ioService84OSSUsername, password: ioService84OSSPassword)
+      }
+
+      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+        authentication(userName: ioService84OSSUsername, password: ioService84OSSPassword)
+      }
+
+      pom.project {
+        name 'Standard Auth'
+        packaging 'jar'
+        description 'Provide configurable RSA JWT with scope Auth Filters'
+        groupId 'io.service84.library'
+        artifactId jar.baseName
+        version = jar.version
+        url 'https://github.com/service84-io/standard-auth'
+
+        scm {
+          connection 'scm:git:https://github.com/service84-io/standard-auth.git'
+          developerConnection 'scm:git:https://github.com/service84-io/standard-auth.git'
+          url 'https://github.com/service84-io/standard-auth'
+        }
+
+        licenses {
+          license {
+            name 'The Apache License, Version 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+          }
+        }
+
+        developers {
+          developer {
+            id 'tyler'
+            name 'Tyler'
+            email 'Tyler@service84.io'
+          }
+        }
+      }
+    }
+  }
+}
+
+sourceCompatibility = 11.0
+
+repositories {
+  jcenter()
+  mavenCentral()
+  maven { url 'https://plugins.gradle.org/m2/' }
+}
+
+configurations.all {
+  exclude module: 'slf4j-jdk14'
+}
+
+dependencies {
+  implementation 'org.springframework.boot:spring-boot-starter-web:2.3.1.RELEASE'
+  implementation 'org.springframework.boot:spring-boot-starter-security:2.3.1.RELEASE'
+
+  implementation 'io.service84.library:authutils:1.0.0'
+
+  implementation 'com.google.code.findbugs:jsr305:3.0.2'
+
+  implementation 'com.auth0:java-jwt:3.10.3'
+  implementation 'com.auth0:jwks-rsa:0.14.0'
+
+  implementation 'io.springfox:springfox-swagger2:2.9.2'
+
+  implementation 'org.apache.commons:commons-lang3:3.10'
+
+  ////////////////////////////////
+  //Test Dependencies/////////////
+  ////////////////////////////////
+  testImplementation 'org.springframework.boot:spring-boot-starter-test:2.3.1.RELEASE'
+}

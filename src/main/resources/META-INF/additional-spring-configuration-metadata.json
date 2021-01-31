@@ -1,0 +1,22 @@
+{"properties": [
+  {
+    "name": "io.service84.library.standardauth.jwt.providers.*.url",
+    "type": "java.lang.String",
+    "description": "The URL for the provider public keys. If a hostname is provided the well-known jwks path will be appended and https:// will be prepended"
+  },
+  {
+    "name": "io.service84.library.standardauth.jwt.providers.*.authority",
+    "type": "java.lang.String",
+    "description": "An optional authority/scope/permission to give to every subject authenticated with the provider"
+  },
+  {
+    "name": "io.service84.library.standardauth.jwt.providers.*.defaultPublicKeyTTL",
+    "type": "java.lang.Integer",
+    "description": "The time to cache the public keys from the provider. Default 86400s"
+  },
+  {
+    "name": "io.service84.library.standardauth.jwt.providers.*.minSecondsRemaining",
+    "type": "java.lang.Integer",
+    "description": "Refresh the public keys if there is less than minSecondsRemaining. Default 6s"
+  }
+]}
