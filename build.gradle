@@ -55,7 +55,7 @@ uploadArchives {
       pom.project {
         name 'Standard Auth'
         packaging 'jar'
-        description 'Provide configurable RSA JWT with scope Auth Filters'
+        description 'Provide configurable RSA JWT with scope Auth Filters for a Spring Service'
         groupId 'io.service84.library'
         artifactId jar.baseName
         version = jar.version
