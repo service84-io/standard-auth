@@ -28,6 +28,9 @@ artifacts {
 signing {
   sign configurations.archives
 }
+tasks.withType(Sign) {
+  onlyIf { project.hasProperty('signing.keyId') }
+}
 
 java {
   withJavadocJar()
