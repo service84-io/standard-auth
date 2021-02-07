@@ -30,6 +30,7 @@ signing {
 }
 
 java {
+  withJavadocJar()
   withSourcesJar()
 }
 
@@ -42,14 +43,17 @@ jar {
 uploadArchives {
   repositories {
     mavenDeployer {
+      def ossrhUsername = project.hasProperty('ioService84OSSUsername') ? ioService84OSSUsername : "Unknown user"
+      def ossrhPassword = project.hasProperty('ioService84OSSPassword') ? ioService84OSSPassword : "Unknown password"
+
       beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
       repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-        authentication(userName: ioService84OSSUsername, password: ioService84OSSPassword)
+        authentication(userName: ossrhUsername, password: ossrhPassword)
       }
 
       snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-        authentication(userName: ioService84OSSUsername, password: ioService84OSSPassword)
+        authentication(userName: ossrhUsername, password: ossrhPassword)
       }
 
       pom.project {
