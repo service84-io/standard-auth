@@ -106,24 +106,37 @@ configurations.all {
 }
 
 dependencies {
-  implementation 'org.springframework.boot:spring-boot-starter-web:2.3.1.RELEASE'
-  implementation 'org.springframework.boot:spring-boot-starter-security:2.3.1.RELEASE'
+  compileOnly 'org.springframework.security:spring-security-web:5.0.0.RELEASE'
 
-  implementation 'io.service84.library:authutils:1.0.0'
+  compileOnly 'org.apache.commons:commons-lang3:3.0'
+  compileOnly 'javax.servlet:servlet-api:2.3'
+  compileOnly 'com.auth0:java-jwt:3.8.0'
+  compileOnly 'com.auth0:jwks-rsa:0.1.0'
 
-  implementation 'com.google.code.findbugs:jsr305:3.0.2'
-
-  implementation 'com.auth0:java-jwt:3.10.3'
-  implementation 'com.auth0:jwks-rsa:0.14.0'
-
-  implementation 'io.springfox:springfox-swagger2:2.9.2'
-
-  implementation 'org.apache.commons:commons-lang3:3.10'
+  compileOnly 'io.service84.library:authutils:1.2.0'
 
   ////////////////////////////////
   //Test Dependencies/////////////
   ////////////////////////////////
-  testImplementation 'org.springframework.boot:spring-boot-starter-test:2.3.1.RELEASE'
+  // This fulfils the SpringSecurityWeb 5.x.x requirement
+  testImplementation 'org.springframework.boot:spring-boot-starter-security:2.4.2'
+
+  // This fulfils the CommonLang 3.x.x requirement
+  testImplementation 'org.apache.commons:commons-lang3:3.11'
+
+  // This fulfils the JavaXServletAPI requirement
+  testImplementation 'javax.servlet:javax.servlet-api:4.0.1'
+
+  // This fulfils the JavaJWT 3.8+ requirement
+  testImplementation 'com.auth0:java-jwt:3.13.0'
+
+  // This fulfils the JWKS 0.1+ requirement
+  testImplementation 'com.auth0:jwks-rsa:0.15.0'
+
+  // This fulfils the S84AuthUtils 1.2+ requirement
+  testImplementation 'io.service84.library:authutils:1.2.0'
+
+  testImplementation 'org.springframework.boot:spring-boot-starter-test:2.4.2'
 }
 
 test {
