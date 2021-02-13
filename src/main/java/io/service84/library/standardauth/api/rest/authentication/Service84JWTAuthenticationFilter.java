@@ -5,8 +5,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -27,9 +25,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import com.auth0.jwk.JwkException;
-import com.auth0.jwk.JwkProvider;
-import com.auth0.jwk.UrlJwkProvider;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -37,6 +32,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.RSAKeyProvider;
 
 import io.service84.library.authutils.services.AuthenticationService;
+import io.service84.library.standardauth.services.KeyProviderService;
 
 public class Service84JWTAuthenticationFilter extends BasicAuthenticationFilter {
   private static String AUTHENTICATION_HEADER = "Authentication";
@@ -45,6 +41,7 @@ public class Service84JWTAuthenticationFilter extends BasicAuthenticationFilter 
   private static Integer minSecondsRemainingDefault = 6;
 
   @Autowired private AuthenticationService authenticationService;
+  @Autowired private KeyProviderService keyProviderService;
 
   private URL providerUrl;
   private String providerIssuer;
@@ -137,31 +134,8 @@ public class Service84JWTAuthenticationFilter extends BasicAuthenticationFilter 
   private synchronized void syncFetchRSA256KeyProvider() {
     if ((rsaKeyProvider == null)
         || rsaKeyProviderExpire.isBefore(LocalDateTime.now().minusSeconds(minSecondsRemaining))) {
-      rsaKeyProvider = wrapKeyProvider(new UrlJwkProvider(providerUrl));
+      rsaKeyProvider = keyProviderService.wrapJWKProvider(providerUrl);
       rsaKeyProviderExpire = LocalDateTime.now().plusSeconds(defaultPublicKeyTTL);
     }
-  }
-
-  private RSAKeyProvider wrapKeyProvider(JwkProvider jwkProvider) {
-    return new RSAKeyProvider() {
-      @Override
-      public RSAPrivateKey getPrivateKey() {
-        return null;
-      }
-
-      @Override
-      public String getPrivateKeyId() {
-        return null;
-      }
-
-      @Override
-      public RSAPublicKey getPublicKeyById(String keyId) {
-        try {
-          return (RSAPublicKey) jwkProvider.get(keyId).getPublicKey();
-        } catch (JwkException e) {
-          return null;
-        }
-      }
-    };
   }
 }
