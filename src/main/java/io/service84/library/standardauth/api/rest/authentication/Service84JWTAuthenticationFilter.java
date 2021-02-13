@@ -35,10 +35,10 @@ import io.service84.library.authutils.services.AuthenticationService;
 import io.service84.library.standardauth.services.KeyProviderService;
 
 public class Service84JWTAuthenticationFilter extends BasicAuthenticationFilter {
-  private static String AUTHENTICATION_HEADER = "Authentication";
-  private static String BEARER_PREFIX = "Bearer ";
-  private static Integer defaultPublicKeyTTLDefault = 86400;
-  private static Integer minSecondsRemainingDefault = 6;
+  private static String AuthenticationHeader = "Authentication";
+  private static String BearerPrefix = "Bearer ";
+  private static Integer DefaultPublicKeyTTLDefault = 86400;
+  private static Integer MinSecondsRemainingDefault = 6;
 
   @Autowired private AuthenticationService authenticationService;
   @Autowired private KeyProviderService keyProviderService;
@@ -67,8 +67,8 @@ public class Service84JWTAuthenticationFilter extends BasicAuthenticationFilter 
           }
         });
 
-    defaultPublicKeyTTL = ObjectUtils.firstNonNull(defaultPublicKeyTTL, defaultPublicKeyTTLDefault);
-    minSecondsRemaining = ObjectUtils.firstNonNull(minSecondsRemaining, minSecondsRemainingDefault);
+    defaultPublicKeyTTL = ObjectUtils.firstNonNull(defaultPublicKeyTTL, DefaultPublicKeyTTLDefault);
+    minSecondsRemaining = ObjectUtils.firstNonNull(minSecondsRemaining, MinSecondsRemainingDefault);
 
     if (!providerUrl.startsWith("http")) {
       providerUrl = "https://" + providerUrl + "/.well-known/jwks.json";
@@ -86,10 +86,10 @@ public class Service84JWTAuthenticationFilter extends BasicAuthenticationFilter 
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain chain)
       throws IOException, ServletException {
-    String authorization = request.getHeader(AUTHENTICATION_HEADER);
+    String authorization = request.getHeader(AuthenticationHeader);
 
-    if ((authorization != null) && (authorization.startsWith(BEARER_PREFIX))) {
-      String token = authorization.replaceFirst(BEARER_PREFIX, "");
+    if ((authorization != null) && (authorization.startsWith(BearerPrefix))) {
+      String token = authorization.replaceFirst(BearerPrefix, "");
       try {
         RSAKeyProvider keyProvider = getRSA256KeyProvider();
         Algorithm algorithm = Algorithm.RSA256(keyProvider);
