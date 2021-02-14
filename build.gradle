@@ -39,7 +39,7 @@ java {
 
 jar {
   baseName = 'standardauth'
-  version = '1.2.0-VIRTUAL-1.0-API-BASELINE'
+  version = '1.2.0'
   enabled = true
 }
 
