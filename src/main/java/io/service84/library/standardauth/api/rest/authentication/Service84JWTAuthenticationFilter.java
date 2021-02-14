@@ -32,7 +32,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.RSAKeyProvider;
 
 import io.service84.library.authutils.services.AuthenticationService;
-import io.service84.library.standardauth.services.KeyProviderService;
 
 public class Service84JWTAuthenticationFilter extends BasicAuthenticationFilter {
   private static String AuthenticationHeader = "Authentication";

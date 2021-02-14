@@ -41,7 +41,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.RSAKeyProvider;
 
 import io.service84.library.authutils.services.AuthenticationService;
-import io.service84.library.standardauth.services.KeyProviderService;
 
 @ExtendWith(SpringExtension.class)
 public class Service84JWTAuthenticationFilterNoAuthorityTests {

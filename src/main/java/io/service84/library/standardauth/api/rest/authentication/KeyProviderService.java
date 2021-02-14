@@ -1,4 +1,4 @@
-package io.service84.library.standardauth.services;
+package io.service84.library.standardauth.api.rest.authentication;
 
 import java.net.URL;
 import java.security.interfaces.RSAPrivateKey;
@@ -13,7 +13,7 @@ import com.auth0.jwk.UrlJwkProvider;
 import com.auth0.jwt.interfaces.RSAKeyProvider;
 
 @Service("551A55CF-2E58-4EE8-9637-31F3E2EC35C8")
-public class KeyProviderService {
+class KeyProviderService {
   public RSAKeyProvider wrapJWKProvider(URL providerURL) {
     JwkProvider jwkProvider = new UrlJwkProvider(providerURL);
 

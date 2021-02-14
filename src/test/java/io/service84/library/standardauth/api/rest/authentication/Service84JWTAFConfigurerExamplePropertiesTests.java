@@ -12,7 +12,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.service84.library.authutils.services.AuthenticationService;
-import io.service84.library.standardauth.services.KeyProviderService;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {"io.service84.library.standardauth.jwtaf.url=example.com"})
