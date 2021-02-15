@@ -1,92 +1,124 @@
 plugins {
-  id 'maven'
+  id 'de.marcphilipp.nexus-publish' version '0.4.0'
   id 'signing'
-  id 'maven-publish'
   id 'java-library'
   id 'eclipse'
   id 'java'
 }
 
-apply plugin: 'maven'
 apply plugin: 'eclipse'
 apply plugin: 'java'
 
-task javadocJar(type: Jar) {
-  classifier = 'javadoc'
-  from javadoc
+def s84Group = 'io.service84.library'
+def s84Name = 'Standard Auth'
+def s84JarName = 'standardauth'
+def s84Description = 'Provide configurable RSA JWT with scope Auth Filters for a Spring Service'
+def s84GithubBase = 'https://github.com/service84-io/standard-auth'
+def s84Version = '1.2.0'
+
+// configure all java components to be published
+publishing {
+  publications {
+    maven(MavenPublication) {
+      from(components.java)
+    }
+  }
+  repositories {
+    maven {
+      name = 'OSSRH'
+      def releasesURL = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+      def snapshotsURL = 'https://oss.sonatype.org/content/repositories/snapshots'
+      url = s84Version.endsWith('SNAPSHOT') ? snapshotsURL : releasesURL
+
+      credentials {
+        def ossUsername = project.hasProperty('ioService84OSSUsername') ? ioService84OSSUsername : 'Unknown user'
+        def ossPassword = project.hasProperty('ioService84OSSPassword') ? ioService84OSSPassword : 'Unknown password'
+        username = ossUsername
+        password = ossPassword
+      }
+    }
+  }
 }
 
-task sourcesJar(type: Jar) {
-  classifier = 'sources'
-  from sourceSets.main.allSource
-}
-
-artifacts {
-  archives javadocJar, sourcesJar
-}
-
-signing {
-  sign configurations.archives
-}
-tasks.withType(Sign) {
-  onlyIf { project.hasProperty('signing.keyId') }
-}
-
+// ossrh requires javadoc and sources https://central.sonatype.org/pages/requirements.html
 java {
   withJavadocJar()
   withSourcesJar()
 }
 
 jar {
-  baseName = 'standardauth'
-  version = '1.2.0'
+  archiveBaseName = s84JarName
+  archiveVersion = s84Version
   enabled = true
 }
 
-uploadArchives {
-  repositories {
-    mavenDeployer {
-      def ossrhUsername = project.hasProperty('ioService84OSSUsername') ? ioService84OSSUsername : "Unknown user"
-      def ossrhPassword = project.hasProperty('ioService84OSSPassword') ? ioService84OSSPassword : "Unknown password"
+// ossrh requries signing https://central.sonatype.org/pages/requirements.html
+// https://docs.gradle.org/current/userguide/signing_plugin.html
+// this only configures signing if the key is found
+// For signing you need to make signingKey and signingPassword available properties See https://docs.gradle.org/current/userguide/build_environment.html#sec:project_properties
+// The following makes the key available via the Gradle Property signingKey
+// export ORG_GRADLE_PROJECT_signingKey=`cat test-private.pgp`
+// export ORG_GRADLE_PROJECT_signingPassword='password'
+// After making the Gradle properties above available, you can try signing using
+// gradle signMavenPublication
+//
+// NOTE: If you are using the legacy publishing you need to sign using the info at https://docs.gradle.org/current/userguide/signing_plugin.html#sec:signing_pom_files
+def hasSigningKey = project.hasProperty('signing.keyId') || project.findProperty('signingKey')
 
-      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+if(hasSigningKey) {
+  sign(project)
+}
 
-      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-        authentication(userName: ossrhUsername, password: ossrhPassword)
+void sign(Project project) {
+  project.signing {
+    required { project.gradle.taskGraph.hasTask('publish') }
+    def signingKeyId = project.findProperty('signingKeyId')
+    def signingKey = project.findProperty('signingKey')
+    def signingPassword = project.findProperty('signingPassword')
+
+    if (signingKeyId) {
+      useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    } else if (signingKey) {
+      useInMemoryPgpKeys(signingKey, signingPassword)
+    }
+
+    sign publishing.publications.maven
+  }
+}
+
+// customize the pom so it complies to Maven central requirements https://central.sonatype.org/pages/requirements.html
+// https://docs.gradle.org/current/userguide/maven_plugin.html#sec:maven_pom_generation
+project.plugins.withType(MavenPublishPlugin).all {
+  PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
+
+  publishing.publications.withType(MavenPublication).all { mavenPublication ->
+    mavenPublication.pom {
+      name = s84Name
+      packaging = 'jar'
+      description = s84Description
+      groupId = s84Group
+      artifactId = s84JarName
+      version = s84Version
+      url = s84GithubBase
+
+      scm {
+        connection = 'scm:git:' + s84GithubBase + '.git'
+        developerConnection = 'scm:git:' + s84GithubBase + '.git'
+        url = s84GithubBase
       }
 
-      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-        authentication(userName: ossrhUsername, password: ossrhPassword)
+      licenses {
+        license {
+          name = 'The Apache License, Version 2.0'
+          url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+        }
       }
 
-      pom.project {
-        name 'Standard Auth'
-        packaging 'jar'
-        description 'Provide configurable RSA JWT with scope Auth Filters for a Spring Service'
-        groupId 'io.service84.library'
-        artifactId jar.baseName
-        version = jar.version
-        url 'https://github.com/service84-io/standard-auth'
-
-        scm {
-          connection 'scm:git:https://github.com/service84-io/standard-auth.git'
-          developerConnection 'scm:git:https://github.com/service84-io/standard-auth.git'
-          url 'https://github.com/service84-io/standard-auth'
-        }
-
-        licenses {
-          license {
-            name 'The Apache License, Version 2.0'
-            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-          }
-        }
-
-        developers {
-          developer {
-            id 'tyler'
-            name 'Tyler'
-            email 'Tyler@service84.io'
-          }
+      developers {
+        developer {
+          id = 'tyler'
+          name = 'Tyler'
+          email = 'Tyler@service84.io'
         }
       }
     }
