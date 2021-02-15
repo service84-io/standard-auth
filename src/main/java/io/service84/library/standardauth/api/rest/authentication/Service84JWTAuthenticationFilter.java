@@ -38,6 +38,7 @@ public class Service84JWTAuthenticationFilter extends BasicAuthenticationFilter 
   private static String BearerPrefix = "Bearer ";
   private static Integer DefaultPublicKeyTTLDefault = 86400;
   private static Integer MinSecondsRemainingDefault = 6;
+  private static List<String> PermittedAlgorithms = Arrays.asList("RS256", "RS384", "RS512");
 
   @Autowired private AuthenticationService authenticationService;
   @Autowired private KeyProviderService keyProviderService;
@@ -90,29 +91,33 @@ public class Service84JWTAuthenticationFilter extends BasicAuthenticationFilter 
     if ((authorization != null) && (authorization.startsWith(BearerPrefix))) {
       String token = authorization.replaceFirst(BearerPrefix, "");
       try {
-        RSAKeyProvider keyProvider = getRSA256KeyProvider();
-        Algorithm algorithm = Algorithm.RSA256(keyProvider);
-        JWTVerifier verifier = JWT.require(algorithm).withIssuer(providerIssuer).build();
-        DecodedJWT jwt = verifier.verify(token);
-        String user = jwt.getSubject();
-        List<String> scopeStrings =
-            Arrays.asList(
-                ObjectUtils.firstNonNull(jwt.getClaim("scope").asString(), "").split(" "));
-        List<GrantedAuthority> authorities =
-            scopeStrings
-                .stream()
-                .map(p -> p.trim())
-                .filter(p -> !p.isEmpty())
-                .map(p -> new SimpleGrantedAuthority(p))
-                .collect(Collectors.toList());
+        DecodedJWT unverifiedJWT = JWT.decode(token);
+        Algorithm algorithm = getAlgorithm(unverifiedJWT);
 
-        if (providerAuthority != null) {
-          authorities.add(new SimpleGrantedAuthority(providerAuthority));
+        if (isPermittedAlgorithm(algorithm)) {
+          JWTVerifier verifier = JWT.require(algorithm).withIssuer(providerIssuer).build();
+          DecodedJWT verifiedJWT = verifier.verify(unverifiedJWT);
+          String user = verifiedJWT.getSubject();
+          List<String> scopeStrings =
+              Arrays.asList(
+                  ObjectUtils.firstNonNull(verifiedJWT.getClaim("scope").asString(), "")
+                      .split(" "));
+          List<GrantedAuthority> authorities =
+              scopeStrings
+                  .stream()
+                  .map(p -> p.trim())
+                  .filter(p -> !p.isEmpty())
+                  .map(p -> new SimpleGrantedAuthority(p))
+                  .collect(Collectors.toList());
+
+          if (providerAuthority != null) {
+            authorities.add(new SimpleGrantedAuthority(providerAuthority));
+          }
+
+          Authentication authentication =
+              new UsernamePasswordAuthenticationToken(user, authorization, authorities);
+          authenticationService.setAuthentication(authentication);
         }
-
-        Authentication authentication =
-            new UsernamePasswordAuthenticationToken(user, authorization, authorities);
-        authenticationService.setAuthentication(authentication);
       } catch (Exception e) {
         // Continue
       }
@@ -121,16 +126,47 @@ public class Service84JWTAuthenticationFilter extends BasicAuthenticationFilter 
     chain.doFilter(request, response);
   }
 
-  private RSAKeyProvider getRSA256KeyProvider() {
+  private Algorithm getAlgorithm(DecodedJWT jwt) {
+    if (jwt.getAlgorithm().equals("RS256")) {
+      RSAKeyProvider keyProvider = getRSAKeyProvider();
+      return Algorithm.RSA256(keyProvider);
+    } else if (jwt.getAlgorithm().equals("RS384")) {
+      RSAKeyProvider keyProvider = getRSAKeyProvider();
+      return Algorithm.RSA384(keyProvider);
+    } else if (jwt.getAlgorithm().equals("RS512")) {
+      RSAKeyProvider keyProvider = getRSAKeyProvider();
+      return Algorithm.RSA512(keyProvider);
+    } else if (jwt.getAlgorithm().equals("HS256")) {
+      return Algorithm.HMAC256("");
+    } else if (jwt.getAlgorithm().equals("HS384")) {
+      return Algorithm.HMAC384("");
+    } else if (jwt.getAlgorithm().equals("HS512")) {
+      return Algorithm.HMAC512("");
+    } else if (jwt.getAlgorithm().equals("ES256")) {
+      return Algorithm.ECDSA256(null, null);
+    } else if (jwt.getAlgorithm().equals("ES384")) {
+      return Algorithm.ECDSA384(null, null);
+    } else if (jwt.getAlgorithm().equals("ES512")) {
+      return Algorithm.ECDSA512(null, null);
+    } else {
+      return Algorithm.none();
+    }
+  }
+
+  private RSAKeyProvider getRSAKeyProvider() {
     if ((rsaKeyProvider == null)
         || rsaKeyProviderExpire.isBefore(LocalDateTime.now().minusSeconds(minSecondsRemaining))) {
-      syncFetchRSA256KeyProvider();
+      syncFetchRSAKeyProvider();
     }
 
     return rsaKeyProvider;
   }
 
-  private synchronized void syncFetchRSA256KeyProvider() {
+  private Boolean isPermittedAlgorithm(Algorithm algorithm) {
+    return PermittedAlgorithms.contains(algorithm.getName());
+  }
+
+  private synchronized void syncFetchRSAKeyProvider() {
     if ((rsaKeyProvider == null)
         || rsaKeyProviderExpire.isBefore(LocalDateTime.now().minusSeconds(minSecondsRemaining))) {
       rsaKeyProvider = keyProviderService.wrapJWKProvider(providerUrl);

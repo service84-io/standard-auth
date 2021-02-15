@@ -116,19 +116,6 @@ public class Service84JWTAuthenticationFilterWithAuthorityTests {
     assertNotNull(rsaKeyProviderNotFilter);
   }
 
-  private String makeFilterToken(
-      String subject, List<String> scopes, String issuer, Integer durationSeconds) {
-    Date expiration = Date.from(ZonedDateTime.now().plusSeconds(durationSeconds).toInstant());
-    Algorithm algorithm = Algorithm.RSA256(rsaKeyProviderFilter);
-    return BearerPrefix
-        + JWT.create()
-            .withIssuer(issuer)
-            .withExpiresAt(expiration)
-            .withSubject(subject.toString())
-            .withClaim("scope", String.join(" ", scopes))
-            .sign(algorithm);
-  }
-
   private String makeNotFilterToken(
       String subject, List<String> scopes, String issuer, Integer durationSeconds) {
     Date expiration = Date.from(ZonedDateTime.now().plusSeconds(durationSeconds).toInstant());
@@ -142,11 +129,93 @@ public class Service84JWTAuthenticationFilterWithAuthorityTests {
             .sign(algorithm);
   }
 
+  private String makeRSA256FilterToken(
+      String subject, List<String> scopes, String issuer, Integer durationSeconds) {
+    Date expiration = Date.from(ZonedDateTime.now().plusSeconds(durationSeconds).toInstant());
+    Algorithm algorithm = Algorithm.RSA256(rsaKeyProviderFilter);
+    return BearerPrefix
+        + JWT.create()
+            .withIssuer(issuer)
+            .withExpiresAt(expiration)
+            .withSubject(subject.toString())
+            .withClaim("scope", String.join(" ", scopes))
+            .sign(algorithm);
+  }
+
+  private String makeRSA512FilterToken(
+      String subject, List<String> scopes, String issuer, Integer durationSeconds) {
+    Date expiration = Date.from(ZonedDateTime.now().plusSeconds(durationSeconds).toInstant());
+    Algorithm algorithm = Algorithm.RSA512(rsaKeyProviderFilter);
+    return BearerPrefix
+        + JWT.create()
+            .withIssuer(issuer)
+            .withExpiresAt(expiration)
+            .withSubject(subject.toString())
+            .withClaim("scope", String.join(" ", scopes))
+            .sign(algorithm);
+  }
+
+  private String makeUnpermittedToken(
+      String subject, List<String> scopes, String issuer, Integer durationSeconds) {
+    Date expiration = Date.from(ZonedDateTime.now().plusSeconds(durationSeconds).toInstant());
+    Algorithm algorithm = Algorithm.none();
+    return BearerPrefix
+        + JWT.create()
+            .withIssuer(issuer)
+            .withExpiresAt(expiration)
+            .withSubject(subject.toString())
+            .withClaim("scope", String.join(" ", scopes))
+            .sign(algorithm);
+  }
+
+  @Test
+  public void rsa512TokenCheck() throws ServletException, IOException {
+    String issuer = "example.com";
+    String subject = UUID.randomUUID().toString();
+    String scopeA = UUID.randomUUID().toString();
+    String scopeB = UUID.randomUUID().toString();
+    List<String> scopes = new ArrayList<>();
+    scopes.add(scopeA);
+    scopes.add(scopeB);
+    Integer durationSeconds = 86400;
+    String token = makeRSA512FilterToken(subject, scopes, issuer, durationSeconds);
+    HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+    HttpServletResponse mockResponse = mock(HttpServletResponse.class);
+    FilterChain mockChain = mock(FilterChain.class);
+    when(mockRequest.getHeader(Mockito.eq(AuthenticationHeader))).thenReturn(token);
+    service84JWTAuthenticationFilter.doFilter(mockRequest, mockResponse, mockChain);
+    assertEquals(subject, authenticationService.getSubject());
+    assertEquals(3, authenticationService.getScopes().size());
+    assertTrue(authenticationService.getScopes().contains(scopeA));
+    assertTrue(authenticationService.getScopes().contains(scopeB));
+    assertTrue(authenticationService.getScopes().contains("ExampleAuthority"));
+  }
+
   @BeforeEach
   public void setup() {
     reset(mockKeyProviderService);
     when(mockKeyProviderService.wrapJWKProvider(any())).thenReturn(rsaKeyProviderFilter);
     authenticationService.setAuthentication(null);
+  }
+
+  @Test
+  public void unpermittedAlgorithmCheck() throws ServletException, IOException {
+    String issuer = "not.example.com";
+    String subject = UUID.randomUUID().toString();
+    String scopeA = UUID.randomUUID().toString();
+    String scopeB = UUID.randomUUID().toString();
+    List<String> scopes = new ArrayList<>();
+    scopes.add(scopeA);
+    scopes.add(scopeB);
+    Integer durationSeconds = 86400;
+    String token = makeUnpermittedToken(subject, scopes, issuer, durationSeconds);
+    HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+    HttpServletResponse mockResponse = mock(HttpServletResponse.class);
+    FilterChain mockChain = mock(FilterChain.class);
+    when(mockRequest.getHeader(Mockito.eq(AuthenticationHeader))).thenReturn(token);
+    service84JWTAuthenticationFilter.doFilter(mockRequest, mockResponse, mockChain);
+    Assertions.assertNull(authenticationService.getSubject());
+    assertTrue(authenticationService.getScopes().isEmpty());
   }
 
   @Test
@@ -159,7 +228,7 @@ public class Service84JWTAuthenticationFilterWithAuthorityTests {
     scopes.add(scopeA);
     scopes.add(scopeB);
     Integer durationSeconds = 86400;
-    String token = makeFilterToken(subject, scopes, issuer, durationSeconds);
+    String token = makeRSA256FilterToken(subject, scopes, issuer, durationSeconds);
     HttpServletRequest mockRequest = mock(HttpServletRequest.class);
     HttpServletResponse mockResponse = mock(HttpServletResponse.class);
     FilterChain mockChain = mock(FilterChain.class);
@@ -182,7 +251,7 @@ public class Service84JWTAuthenticationFilterWithAuthorityTests {
     scopes.add(scopeA);
     scopes.add(scopeB);
     Integer durationSeconds = 86400;
-    String token = makeFilterToken(subject, scopes, issuer, durationSeconds);
+    String token = makeRSA256FilterToken(subject, scopes, issuer, durationSeconds);
     HttpServletRequest mockRequest = mock(HttpServletRequest.class);
     HttpServletResponse mockResponse = mock(HttpServletResponse.class);
     FilterChain mockChain = mock(FilterChain.class);
