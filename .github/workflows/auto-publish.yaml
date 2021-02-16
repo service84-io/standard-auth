@@ -1,0 +1,23 @@
+name: Auto Publish
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up JDK 11
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+    - name: Build with Gradle
+      run: gradle build
+    - name: Publish with Gradle
+      env:
+        ORG_GRADLE_PROJECT_ioService84OSSUsername: ${{ secrets.IO_SERVICE84_OSS_USERNAME }}
+        ORG_GRADLE_PROJECT_ioService84OSSPassword: ${{ secrets.IO_SERVICE84_OSS_PASSWORD }}
+        ORG_GRADLE_PROJECT_signingKey: ${{ secrets.IO_SERVICE84_KEY_DATA }}
+        ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.IO_SERVICE84_KEY_PASSWORD }}
+      run: gradle publish
