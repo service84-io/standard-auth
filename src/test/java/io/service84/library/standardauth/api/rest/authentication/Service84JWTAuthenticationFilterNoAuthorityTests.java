@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -143,6 +144,7 @@ public class Service84JWTAuthenticationFilterNoAuthorityTests {
     HttpServletResponse mockResponse = mock(HttpServletResponse.class);
     FilterChain mockChain = mock(FilterChain.class);
     when(mockRequest.getHeader(Mockito.eq(AuthenticationHeader))).thenReturn(token);
+    when(mockRequest.getDispatcherType()).thenReturn(DispatcherType.REQUEST);
     service84JWTAuthenticationFilter.doFilter(mockRequest, mockResponse, mockChain);
     assertEquals(subject, authenticationService.getSubject());
     assertEquals(2, authenticationService.getScopes().size());
