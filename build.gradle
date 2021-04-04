@@ -163,11 +163,28 @@ configurations.all {
   exclude module: 'slf4j-jdk14'
 }
 
+configurations {
+  eclipseSingleClasspathExclusionWorkaround {
+    'javax.servlet:servlet-api:2.3'
+  }
+  eclipseSingleClasspathInclusionWorkaround {
+    'javax.servlet:javax.servlet-api:3.0.1'
+  }
+}
+
 dependencies {
   compileOnly 'org.springframework.security:spring-security-web:5.0.0.RELEASE'
 
   compileOnly 'org.apache.commons:commons-lang3:3.0'
+
   compileOnly 'javax.servlet:servlet-api:2.3'
+  // STS4/Eclipse has limited classpath differentiation support,
+  // This limitation means we have to use the same version of the JavaXServletAPI when
+  // compiling both the Production and Test code.  So we have to compile the Production
+  // code with the newer version.
+  eclipseSingleClasspathExclusionWorkaround 'javax.servlet:servlet-api:2.3'
+  eclipseSingleClasspathInclusionWorkaround 'javax.servlet:javax.servlet-api:3.0.1'
+
   compileOnly 'com.auth0:java-jwt:3.8.0'
   compileOnly 'com.auth0:jwks-rsa:0.1.0'
 
@@ -195,6 +212,13 @@ dependencies {
   testImplementation 'io.service84.library:authutils:1.2.0'
 
   testImplementation 'org.springframework.boot:spring-boot-starter-test:2.4.2'
+}
+
+eclipse {
+  classpath {
+    minusConfigurations += [ configurations.eclipseSingleClasspathExclusionWorkaround ]
+    plusConfigurations += [ configurations.eclipseSingleClasspathInclusionWorkaround ]
+  }
 }
 
 test {
