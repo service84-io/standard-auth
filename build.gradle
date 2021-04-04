@@ -33,14 +33,6 @@ publishing {
   publications {
     maven(MavenPublication) {
       from(components.java)
-
-      artifact('LICENSE') {
-        classifier 'LICENSE'
-      }
-
-      artifact('NOTICE') {
-        classifier 'NOTICE'
-      }
     }
   }
   repositories {
