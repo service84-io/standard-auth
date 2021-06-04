@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ## Usage
+This library provides a configurable JWT Auth Filter.
+
 ### Availability
 This library is available from Maven Central with more information at
 https://mvnrepository.com/artifact/io.service84.library/standardauth
