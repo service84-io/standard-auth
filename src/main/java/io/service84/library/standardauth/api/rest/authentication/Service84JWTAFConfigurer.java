@@ -37,8 +37,6 @@ public class Service84JWTAFConfigurer {
 
   @Bean("3066D1E1-C0F3-4200-A898-B4F0C6373B60")
   public Service84JWTAuthenticationFilter getService84JWTAuthenticationFilter() {
-    System.out.println("Hi Tyler");
-    System.out.println(url);
     if (url == null) {
       return null;
     } else {
