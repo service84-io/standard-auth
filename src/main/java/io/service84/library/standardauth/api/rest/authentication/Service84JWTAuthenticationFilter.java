@@ -117,8 +117,7 @@ public class Service84JWTAuthenticationFilter extends BasicAuthenticationFilter 
                   ObjectUtils.firstNonNull(verifiedJWT.getClaim("scope").asString(), "")
                       .split(" "));
           List<GrantedAuthority> authorities =
-              scopeStrings
-                  .stream()
+              scopeStrings.stream()
                   .map(p -> p.trim())
                   .filter(p -> !p.isEmpty())
                   .map(p -> new SimpleGrantedAuthority(p))
