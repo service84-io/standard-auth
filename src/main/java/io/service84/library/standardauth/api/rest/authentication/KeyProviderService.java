@@ -19,6 +19,8 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.auth0.jwk.JwkException;
@@ -28,7 +30,10 @@ import com.auth0.jwt.interfaces.RSAKeyProvider;
 
 @Service("551A55CF-2E58-4EE8-9637-31F3E2EC35C8")
 class KeyProviderService {
+  private static final Logger logger = LoggerFactory.getLogger(KeyProviderService.class);
+
   public RSAKeyProvider wrapJWKProvider(URL providerURL) {
+    logger.debug("wrapJWKProvider");
     JwkProvider jwkProvider = new UrlJwkProvider(providerURL);
 
     return new RSAKeyProvider() {
@@ -54,6 +59,7 @@ class KeyProviderService {
   }
 
   public RSAKeyProvider wrapKeys(RSAPrivateKey privateKey, RSAPublicKey publicKey) {
+    logger.debug("wrapKeys");
     return new RSAKeyProvider() {
       private String keyId = UUID.randomUUID().toString();
 

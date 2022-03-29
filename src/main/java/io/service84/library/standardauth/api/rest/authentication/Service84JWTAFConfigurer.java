@@ -17,12 +17,16 @@ package io.service84.library.standardauth.api.rest.authentication;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration("629F6DDC-F62F-41CC-B8D4-86825A10C9FE")
 public class Service84JWTAFConfigurer {
+  private static final Logger logger = LoggerFactory.getLogger(Service84JWTAFConfigurer.class);
+
   @Value("${io.service84.library.standardauth.jwtaf.url:#{null}}")
   private String url;
 
@@ -37,6 +41,7 @@ public class Service84JWTAFConfigurer {
 
   @Bean("3066D1E1-C0F3-4200-A898-B4F0C6373B60")
   public Service84JWTAuthenticationFilter getService84JWTAuthenticationFilter() {
+    logger.debug("getService84JWTAuthenticationFilter");
     if (url == null) {
       return null;
     }

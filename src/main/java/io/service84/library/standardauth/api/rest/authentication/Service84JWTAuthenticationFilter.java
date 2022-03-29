@@ -30,6 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -48,6 +50,9 @@ import com.auth0.jwt.interfaces.RSAKeyProvider;
 import io.service84.library.authutils.services.AuthenticationService;
 
 public class Service84JWTAuthenticationFilter extends BasicAuthenticationFilter {
+  private static final Logger logger =
+      LoggerFactory.getLogger(Service84JWTAuthenticationFilter.class);
+
   private static String AuthenticationHeader = "Authentication";
   private static String BearerPrefix = "Bearer ";
   private static Integer DefaultPublicKeyTTLDefault = 86400;
@@ -100,6 +105,7 @@ public class Service84JWTAuthenticationFilter extends BasicAuthenticationFilter 
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain chain)
       throws IOException, ServletException {
+    logger.debug("doFilterInternal");
     String authorization = request.getHeader(AuthenticationHeader);
 
     if ((authorization != null) && (authorization.startsWith(BearerPrefix))) {

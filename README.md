@@ -29,6 +29,7 @@ versions are (built-tested)
     javax.servlet:javax.servlet-api:(2.3-3.0.1)
     com.auth0:java-jwt:(3.8.0-3.13.0)
     com.auth0:jwks-rsa:(0.1.0-0.15.0)
+    org.slf4j:slf4j-api:(1.3.0-1.7.30)
     io.service84.library:authutils:(1.2.0-1.2.0)
 
 ## Build
