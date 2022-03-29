@@ -39,13 +39,13 @@ public class Service84JWTAFConfigurer {
   public Service84JWTAuthenticationFilter getService84JWTAuthenticationFilter() {
     if (url == null) {
       return null;
-    } else {
-      try {
-        return new Service84JWTAuthenticationFilter(
-            url, authority, defaultPublicKeyTTL, minSecondsRemaining);
-      } catch (URISyntaxException | MalformedURLException e) {
-        throw new Error(e);
-      }
+    }
+
+    try {
+      return new Service84JWTAuthenticationFilter(
+          url, authority, defaultPublicKeyTTL, minSecondsRemaining);
+    } catch (URISyntaxException | MalformedURLException e) {
+      throw new Error(e);
     }
   }
 }

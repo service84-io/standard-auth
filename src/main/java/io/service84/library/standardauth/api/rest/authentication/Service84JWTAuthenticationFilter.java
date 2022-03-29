@@ -143,27 +143,43 @@ public class Service84JWTAuthenticationFilter extends BasicAuthenticationFilter 
     if (jwt.getAlgorithm().equals("RS256")) {
       RSAKeyProvider keyProvider = getRSAKeyProvider();
       return Algorithm.RSA256(keyProvider);
-    } else if (jwt.getAlgorithm().equals("RS384")) {
+    }
+
+    if (jwt.getAlgorithm().equals("RS384")) {
       RSAKeyProvider keyProvider = getRSAKeyProvider();
       return Algorithm.RSA384(keyProvider);
-    } else if (jwt.getAlgorithm().equals("RS512")) {
+    }
+
+    if (jwt.getAlgorithm().equals("RS512")) {
       RSAKeyProvider keyProvider = getRSAKeyProvider();
       return Algorithm.RSA512(keyProvider);
-    } else if (jwt.getAlgorithm().equals("HS256")) {
-      return Algorithm.HMAC256("");
-    } else if (jwt.getAlgorithm().equals("HS384")) {
-      return Algorithm.HMAC384("");
-    } else if (jwt.getAlgorithm().equals("HS512")) {
-      return Algorithm.HMAC512("");
-    } else if (jwt.getAlgorithm().equals("ES256")) {
-      return Algorithm.ECDSA256(null, null);
-    } else if (jwt.getAlgorithm().equals("ES384")) {
-      return Algorithm.ECDSA384(null, null);
-    } else if (jwt.getAlgorithm().equals("ES512")) {
-      return Algorithm.ECDSA512(null, null);
-    } else {
-      return Algorithm.none();
     }
+
+    if (jwt.getAlgorithm().equals("HS256")) {
+      return Algorithm.HMAC256("");
+    }
+
+    if (jwt.getAlgorithm().equals("HS384")) {
+      return Algorithm.HMAC384("");
+    }
+
+    if (jwt.getAlgorithm().equals("HS512")) {
+      return Algorithm.HMAC512("");
+    }
+
+    if (jwt.getAlgorithm().equals("ES256")) {
+      return Algorithm.ECDSA256(null, null);
+    }
+
+    if (jwt.getAlgorithm().equals("ES384")) {
+      return Algorithm.ECDSA384(null, null);
+    }
+
+    if (jwt.getAlgorithm().equals("ES512")) {
+      return Algorithm.ECDSA512(null, null);
+    }
+
+    return Algorithm.none();
   }
 
   private RSAKeyProvider getRSAKeyProvider() {
