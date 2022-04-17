@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package io.service84.library.standardauth.api.rest.authentication;
+package io.service84.library.standardauth.services;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration("629F6DDC-F62F-41CC-B8D4-86825A10C9FE")
+@Configuration("0D79667F-0FEA-4699-B648-7EEE00676313")
 public class Service84JWTAFConfigurer {
   private static final Logger logger = LoggerFactory.getLogger(Service84JWTAFConfigurer.class);
 
@@ -39,7 +39,7 @@ public class Service84JWTAFConfigurer {
   @Value("${io.service84.library.standardauth.jwtaf.minSecondsRemaining:6}")
   private Integer minSecondsRemaining;
 
-  @Bean("3066D1E1-C0F3-4200-A898-B4F0C6373B60")
+  @Bean("03B64610-16DF-4721-8A62-8FB614C1C357")
   public Service84JWTAuthenticationFilter getService84JWTAuthenticationFilter() {
     logger.debug("getService84JWTAuthenticationFilter");
     if (url == null) {

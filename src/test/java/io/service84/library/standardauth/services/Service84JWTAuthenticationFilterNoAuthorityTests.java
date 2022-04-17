@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package io.service84.library.standardauth.api.rest.authentication;
+package io.service84.library.standardauth.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

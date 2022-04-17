@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package io.service84.library.standardauth.api.rest.authentication;
+package io.service84.library.standardauth.services;
 
 import java.net.URL;
 import java.security.interfaces.RSAPrivateKey;
@@ -28,8 +28,8 @@ import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.UrlJwkProvider;
 import com.auth0.jwt.interfaces.RSAKeyProvider;
 
-@Service("551A55CF-2E58-4EE8-9637-31F3E2EC35C8")
-class KeyProviderService {
+@Service("29CDC7AB-D38F-4FA5-B9DA-529891B1B602")
+public class KeyProviderService {
   private static final Logger logger = LoggerFactory.getLogger(KeyProviderService.class);
 
   public RSAKeyProvider wrapJWKProvider(URL providerURL) {
