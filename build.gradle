@@ -11,9 +11,13 @@
 // limitations under the License.
 
 plugins {
+  id 'com.diffplug.eclipse.apt' version '3.22.0'
+  // id 'org.springframework.boot' version '2.2.4.RELEASE'
+  // id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+  // id 'org.openapi.generator' version '4.2.3'
+  id 'java-library'
   id 'maven-publish'
   id 'signing'
-  id 'java-library'
   id 'eclipse'
   id 'java'
 }
@@ -144,6 +148,14 @@ project.plugins.withType(MavenPublishPlugin).all {
 
 sourceCompatibility = 11.0
 
+sourceSets {
+  main {
+    java {
+      srcDir 'gen/main/java'
+    }
+  }
+}
+
 repositories {
   jcenter()
   mavenCentral()
@@ -153,15 +165,6 @@ repositories {
 
 configurations.all {
   exclude module: 'slf4j-jdk14'
-}
-
-configurations {
-  eclipseSingleClasspathExclusionWorkaround {
-    'javax.servlet:servlet-api:2.3'
-  }
-  eclipseSingleClasspathInclusionWorkaround {
-    'javax.servlet:javax.servlet-api:3.0.1'
-  }
 }
 
 dependencies {
@@ -209,6 +212,15 @@ dependencies {
   testImplementation 'org.springframework.boot:spring-boot-starter-test:2.4.2'
 }
 
+configurations {
+  eclipseSingleClasspathExclusionWorkaround {
+    'javax.servlet:servlet-api:2.3'
+  }
+  eclipseSingleClasspathInclusionWorkaround {
+    'javax.servlet:javax.servlet-api:3.0.1'
+  }
+}
+
 eclipse {
   classpath {
     minusConfigurations += [ configurations.eclipseSingleClasspathExclusionWorkaround ]
@@ -218,4 +230,34 @@ eclipse {
 
 test {
   useJUnitPlatform()
+}
+
+////////////////////////////////
+//Download Dependencies/////////
+////////////////////////////////
+task downloadDependencies {
+  doLast {
+    project.rootProject.allprojects.each { project ->
+      project.buildscript.configurations.each { configuration ->
+        if (configuration.canBeResolved) {
+          configuration.resolve()
+        }
+      }
+
+      project.configurations.each { configuration ->
+        if (configuration.canBeResolved) {
+          configuration.resolve()
+        }
+      }
+    }
+  }
+}
+
+////////////////////////////////
+//Generate Metamodel////////////
+////////////////////////////////
+eclipse {
+  synchronizationTasks eclipseFactorypath
+  synchronizationTasks eclipseJdt
+  synchronizationTasks eclipseJdtApt
 }
