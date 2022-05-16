@@ -105,7 +105,12 @@ public class Service84JWTAuthenticationFilter extends BasicAuthenticationFilter 
 
     URI providerUri = new URI(providerUrl).normalize();
     this.providerUrl = providerUri.toURL();
-    this.providerIssuer = ObjectUtils.firstNonNull(providerIssuer, this.providerUrl.getHost());
+    this.providerIssuer = providerIssuer;
+
+    if (providerIssuer == null || providerIssuer.isBlank()) {
+      this.providerIssuer = this.providerUrl.getHost();
+    }
+
     this.providerAuthority = providerAuthority;
     this.defaultPublicKeyTTL = defaultPublicKeyTTL;
     this.minSecondsRemaining = minSecondsRemaining;
