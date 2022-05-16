@@ -77,6 +77,16 @@ public class Service84JWTAuthenticationFilter extends BasicAuthenticationFilter 
       Integer defaultPublicKeyTTL,
       Integer minSecondsRemaining)
       throws URISyntaxException, MalformedURLException {
+    this(providerUrl, null, providerAuthority, defaultPublicKeyTTL, minSecondsRemaining);
+  }
+
+  public Service84JWTAuthenticationFilter(
+      String providerUrl,
+      String providerIssuer,
+      String providerAuthority,
+      Integer defaultPublicKeyTTL,
+      Integer minSecondsRemaining)
+      throws URISyntaxException, MalformedURLException {
     super(
         new AuthenticationManager() {
           @Override
@@ -95,7 +105,7 @@ public class Service84JWTAuthenticationFilter extends BasicAuthenticationFilter 
 
     URI providerUri = new URI(providerUrl).normalize();
     this.providerUrl = providerUri.toURL();
-    this.providerIssuer = this.providerUrl.getHost();
+    this.providerIssuer = ObjectUtils.firstNonNull(providerIssuer, this.providerUrl.getHost());
     this.providerAuthority = providerAuthority;
     this.defaultPublicKeyTTL = defaultPublicKeyTTL;
     this.minSecondsRemaining = minSecondsRemaining;

@@ -19,6 +19,11 @@
       "description": "The URL for the provider public keys. If a hostname is provided the well-known jwks path will be appended and https:// will be prepended"
     },
     {
+      "name":"io.service84.library.standardauth.jwtaf.issuer",
+      "type": "java.lang.String",
+      "description": "An optional override of the issuer hostname"
+    },
+    {
       "name": "io.service84.library.standardauth.jwtaf.authority",
       "type": "java.lang.String",
       "description": "An optional authority/scope/permission to give to every subject authenticated with the provider"

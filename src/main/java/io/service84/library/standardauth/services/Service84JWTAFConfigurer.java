@@ -30,6 +30,9 @@ public class Service84JWTAFConfigurer {
   @Value("${io.service84.library.standardauth.jwtaf.url:#{null}}")
   private String url;
 
+  @Value("${io.service84.library.standardauth.jwtaf.issuer:#{null}}")
+  private String issuer;
+
   @Value("${io.service84.library.standardauth.jwtaf.authority:#{null}}")
   private String authority;
 
@@ -48,7 +51,7 @@ public class Service84JWTAFConfigurer {
 
     try {
       return new Service84JWTAuthenticationFilter(
-          url, authority, defaultPublicKeyTTL, minSecondsRemaining);
+          url, issuer, authority, defaultPublicKeyTTL, minSecondsRemaining);
     } catch (URISyntaxException | MalformedURLException e) {
       throw new Error(e);
     }
