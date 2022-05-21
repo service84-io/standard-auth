@@ -152,6 +152,7 @@ sourceSets {
   main {
     java {
       srcDir 'gen/main/java'
+      srcDir 'gen/main/resources'
     }
   }
 }
@@ -161,6 +162,10 @@ repositories {
   mavenCentral()
   maven { url 'https://plugins.gradle.org/m2/' }
   maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+}
+
+configurations {
+  service
 }
 
 configurations.all {
@@ -260,4 +265,62 @@ eclipse {
   synchronizationTasks eclipseFactorypath
   synchronizationTasks eclipseJdt
   synchronizationTasks eclipseJdtApt
+}
+
+////////////////////////////////
+//Process Service Dependencies//
+////////////////////////////////
+task processService {
+  configurations.service.each {
+    def serviceJAR = "${it}"
+    def serviceName = org.apache.commons.io.FilenameUtils.getBaseName(serviceJAR).split('-')[0]
+
+    tasks.create(name: "delete_api_definition_${serviceName}", type: Delete) {
+      delete "gen/main/resources/${serviceName}.yaml"
+    }
+
+    tasks.create(
+        name: "copy_api_definition_${serviceName}",
+        dependsOn: [ "delete_api_definition_${serviceName}"],
+        type: Copy
+    ) {
+      from(zipTree(serviceJAR).matching { include "${serviceName}.yaml" })
+      into('gen/main/resources')
+    }
+
+    tasks.create(name: "delete_api_client_${serviceName}", type: Delete) {
+      delete "gen/main/java/io/service84/clients/${serviceName}"
+    }
+
+    tasks.create(
+        name: "generate_api_client_${serviceName}",
+        dependsOn: [ "delete_api_client_${serviceName}", "copy_api_definition_${serviceName}"],
+        type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+    ) {
+      inputSpec = "${rootDir}/gen/main/resources/${serviceName}.yaml"
+      outputDir = "${rootDir}"
+      generatorName = 'java'
+      library = 'resttemplate'
+      apiPackage = "io.service84.clients.${serviceName}.api"
+      modelPackage = "io.service84.clients.${serviceName}.dto"
+      modelNameSuffix = 'DTO'
+      configOptions = [
+        delegatePattern: 'True',
+        useTags: 'True',
+        hideGenerationTimestamp: 'True',
+        dateLibrary: 'java8',
+        sourceFolder: 'gen/main/java'
+      ]
+      typeMappings = [
+        OffsetDateTime: 'java.time.LocalDateTime'
+      ]
+    }
+
+    compileJava.dependsOn "generate_api_client_${serviceName}"
+
+    eclipse {
+      autoBuildTasks "generate_api_client_${serviceName}"
+      synchronizationTasks "generate_api_client_${serviceName}"
+    }
+  }
 }
