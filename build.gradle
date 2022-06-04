@@ -153,6 +153,13 @@ sourceSets {
   main {
     java {
       srcDir 'gen/main/java'
+    }
+  }
+}
+
+sourceSets {
+  main {
+    resources {
       srcDir 'gen/main/resources'
     }
   }
