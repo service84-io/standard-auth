@@ -174,7 +174,7 @@ repositories {
 }
 
 configurations {
-  service
+  javaClient
 }
 
 configurations.all {
@@ -280,7 +280,7 @@ eclipse {
 //Process Service Dependencies//
 ////////////////////////////////
 task processService {
-  configurations.service.each {
+  configurations.javaClient.each {
     def serviceJAR = "${it}"
     def serviceName = org.apache.commons.io.FilenameUtils.getBaseName(serviceJAR).split('-')[0]
 
