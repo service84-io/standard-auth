@@ -25,12 +25,9 @@ plugins {
 apply plugin: 'eclipse'
 apply plugin: 'java'
 
+apply from: 'version.gradle'
+
 def s84Group = 'io.service84.library'
-def s84Name = 'Standard Auth'
-def s84JarName = 'standardauth'
-def s84Description = 'Provide configurable RSA JWT with scope Auth Filters for a Spring Service'
-def s84GithubBase = 'https://github.com/service84-io/standard-auth'
-def s84Version = '1.3.50-SNAPSHOT'
 def s84CoreName = s84JarName.split('-')[0]
 
 // configure all java components to be published
