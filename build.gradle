@@ -152,11 +152,6 @@ sourceSets {
     java {
       srcDir 'gen/main/java'
     }
-  }
-}
-
-sourceSets {
-  main {
     resources {
       srcDir 'gen/main/resources'
     }
